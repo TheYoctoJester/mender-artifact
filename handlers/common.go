@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -198,8 +199,9 @@ func writeFiles(tw *tar.Writer, updFiles []string, dir string) error {
 	if err != nil {
 		return errors.Wrap(err, "writeFiles: ")
 	}
+	// Use path.Join (not filepath.Join) because tar archives always use forward slashes
 	if err := sa.Write(stream,
-		filepath.Join(dir, "files")); err != nil {
+		path.Join(dir, "files")); err != nil {
 		return errors.Wrapf(err, "writer: can not tar files")
 	}
 	return nil
@@ -213,7 +215,8 @@ func writeTypeInfo(tw *tar.Writer, updateType string, dir string) error {
 	}
 
 	w := artifact.NewTarWriterStream(tw)
-	if err := w.Write(info, filepath.Join(dir, "type-info")); err != nil {
+	// Use path.Join (not filepath.Join) because tar archives always use forward slashes
+	if err := w.Write(info, path.Join(dir, "type-info")); err != nil {
 		return errors.Wrapf(err, "Payload: can not tar type-info")
 	}
 	return nil
@@ -232,7 +235,8 @@ func writeTypeInfoV3(args *WriteInfoArgs) error {
 	}
 
 	w := artifact.NewTarWriterStream(args.tarWriter)
-	if err := w.Write(info, filepath.Join(args.dir, "type-info")); err != nil {
+	// Use path.Join (not filepath.Join) because tar archives always use forward slashes
+	if err := w.Write(info, path.Join(args.dir, "type-info")); err != nil {
 		return errors.Wrapf(err, "Payload: can not tar type-info")
 	}
 	return nil

@@ -16,7 +16,7 @@ package artifact
 
 import (
 	"fmt"
-	"path/filepath"
+	"path"
 )
 
 const (
@@ -24,14 +24,20 @@ const (
 	DataDirectory   = "data"
 )
 
+// UpdatePath returns the tar archive path for an update payload.
+// Uses path.Join (not filepath.Join) because tar archives always use forward slashes.
 func UpdatePath(no int) string {
-	return filepath.Join(DataDirectory, fmt.Sprintf("%04d", no))
+	return path.Join(DataDirectory, fmt.Sprintf("%04d", no))
 }
 
+// UpdateHeaderPath returns the tar archive path for an update header.
+// Uses path.Join (not filepath.Join) because tar archives always use forward slashes.
 func UpdateHeaderPath(no int) string {
-	return filepath.Join(HeaderDirectory, fmt.Sprintf("%04d", no))
+	return path.Join(HeaderDirectory, fmt.Sprintf("%04d", no))
 }
 
+// UpdateDataPath returns the tar archive path for update data.
+// Uses path.Join (not filepath.Join) because tar archives always use forward slashes.
 func UpdateDataPath(no int) string {
-	return filepath.Join(DataDirectory, fmt.Sprintf("%04d.tar", no))
+	return path.Join(DataDirectory, fmt.Sprintf("%04d.tar", no))
 }

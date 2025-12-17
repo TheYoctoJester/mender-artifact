@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 
@@ -106,8 +107,9 @@ func calcDataHash(
 			}
 			sum := ch.Checksum()
 			f.Checksum = sum
+			// Use path.Join (not filepath.Join) because tar archives always use forward slashes
 			err = manifestChecksumStore.Add(
-				filepath.Join(artifact.UpdatePath(i), filepath.Base(f.Name)),
+				path.Join(artifact.UpdatePath(i), filepath.Base(f.Name)),
 				sum,
 			)
 			if err != nil {
@@ -447,8 +449,9 @@ func writeScripts(tw *tar.Writer, scr *artifact.Scripts) error {
 		}
 		defer f.Close()
 
+		// Use path.Join (not filepath.Join) because tar archives always use forward slashes
 		if err :=
-			sw.Write(f, filepath.Join("scripts", filepath.Base(script))); err != nil {
+			sw.Write(f, path.Join("scripts", filepath.Base(script))); err != nil {
 			return errors.Wrapf(err, "writer: can not store script: %s", script)
 		}
 	}

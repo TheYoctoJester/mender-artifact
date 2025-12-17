@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -823,7 +824,8 @@ func (ar *Reader) buildInstallerIndexedFileLists(
 ) ([][]*handlers.DataFile, error) {
 	fileLists := make([][](*handlers.DataFile), len(ar.installers))
 	for _, file := range files {
-		if !strings.HasPrefix(file.Name, "data"+string(os.PathSeparator)) {
+		// Use "/" because manifest paths always use forward slashes (POSIX tar format)
+		if !strings.HasPrefix(file.Name, "data/") {
 			continue
 		}
 		index, baseName, err := getUpdateNoFromManifestPath(file.Name)
@@ -883,7 +885,9 @@ func getUpdateNoFromDataPath(comp artifact.Compressor, path string) (int, error)
 // Returns the index of the data file, converted to int, as well as the
 // file name.
 func getUpdateNoFromManifestPath(path string) (int, string, error) {
-	components := strings.Split(path, string(os.PathSeparator))
+	// Use "/" for splitting because manifest paths always use forward slashes
+	// (they come from tar archives which use POSIX path format)
+	components := strings.Split(path, "/")
 	if len(components) != 3 || components[0] != "data" {
 		return 0, "", fmt.Errorf("Malformed manifest entry: '%s'", path)
 	}
@@ -1097,7 +1101,8 @@ func (ar *Reader) readAndInstallDataFiles(tar *tar.Reader, i handlers.Installer,
 		// all the names of the data files in manifest are written with the
 		// archive relative path: data/0000/update.ext4
 		if ar.manifest != nil {
-			df.Checksum, err = ar.manifest.GetAndMark(filepath.Join(artifact.UpdatePath(no),
+			// Use path.Join (not filepath.Join) because manifest paths always use forward slashes
+			df.Checksum, err = ar.manifest.GetAndMark(path.Join(artifact.UpdatePath(no),
 				hdr.FileInfo().Name()))
 			if err != nil {
 				return errors.Wrapf(err, "Payload: checksum missing")

@@ -66,7 +66,7 @@ version to use is determined by the Yocto or Debian/Ubuntu distribution in use.
 
 ## Building from source
 
-**Note: The build process is only supported on Linux-based environments.**
+**Note: The containerized and native Linux builds require a Linux-based environment. Native Windows building is also supported (see below).**
 
 ### Containerized
 
@@ -89,7 +89,7 @@ or move it to a location on your systems `PATH`.
 
 **Note: containerized building on non-x86 platform is not supported yet**
 
-### Native
+### Native (Linux)
 
 To build `mender-artifact` from source you need the following prerequisites:
 (packages given for Debian-based environments)
@@ -103,6 +103,29 @@ make build
 
 This results in the self-contained binary `mender-artifact`. You can leave it in place,
 or move it to a location on your systems `PATH`.
+
+### Native (Windows)
+
+To build `mender-artifact` natively on Windows:
+
+Prerequisites:
+- Go 1.22 or later [Installation instructions](https://go.dev/doc/install)
+- Git (for version information)
+
+Build with CGO disabled (pure Go, no C dependencies):
+
+```powershell
+$env:CGO_ENABLED = "0"
+go build -tags "nopkcs11" -o mender-artifact.exe .
+```
+
+The `nopkcs11` build tag disables PKCS#11 support which requires Linux-specific libraries.
+
+Verify the build:
+```powershell
+.\mender-artifact.exe --version
+.\mender-artifact.exe --help
+```
 
 ## Enabling auto-completion in Bash & ZSH
 

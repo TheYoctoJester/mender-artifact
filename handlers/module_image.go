@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"path"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -429,11 +430,11 @@ func (img *ModuleImage) ComposeHeader(args *ComposeHeaderArgs) error {
 
 	img.typeInfoV3 = args.TypeInfoV3
 
-	path := artifact.UpdateHeaderPath(args.No)
+	headerPath := artifact.UpdateHeaderPath(args.No)
 
 	if err := writeTypeInfoV3(&WriteInfoArgs{
 		tarWriter:  args.TarWriter,
-		dir:        path,
+		dir:        headerPath,
 		typeinfov3: args.TypeInfoV3,
 	}); err != nil {
 		return errors.Wrap(err, "ComposeHeader: ")
@@ -448,7 +449,8 @@ func (img *ModuleImage) ComposeHeader(args *ComposeHeaderArgs) error {
 				"MetaData field unmarshalable. This is a bug in the application",
 			)
 		}
-		if err = sw.Write(data, filepath.Join(path, "meta-data")); err != nil {
+		// Use path.Join (not filepath.Join) because tar archives always use forward slashes
+		if err = sw.Write(data, path.Join(headerPath, "meta-data")); err != nil {
 			return errors.Wrap(err, "Payload: can not store meta-data")
 		}
 	}
